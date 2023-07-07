@@ -1,12 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class Message {
-  String msg;
-  String author;
-  DateTime time;
-  bool read;
-  Message({required this.msg,required this.author,required this.time,this.read=false});
-}
+import '../models/message.dart';
+import './getDb.dart';
 
 class MessageEvent {}
 
@@ -22,8 +16,10 @@ class readMessage extends MessageEvent {
 
 class MessageBloc extends Bloc<MessageEvent,List<Message>> {
   MessageBloc() : super([]) {
+    loadMessages().then((value) => emit(value));
     on<newMessage>(
         (event,emit) {
+          saveMessages([...state,event.new_msg]);
           emit([...state,event.new_msg]);
         }
     );
@@ -35,7 +31,7 @@ class MessageBloc extends Bloc<MessageEvent,List<Message>> {
                 return msg;
               }
               else{
-                msg.read = true;
+                msg = msg.copyWith(read:true);
                 return msg;
               }
             }).toList()
